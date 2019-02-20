@@ -1,0 +1,2 @@
+# liriBot
+create a "bot"

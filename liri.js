@@ -8,6 +8,9 @@ var fs = require('fs');
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
 
+var divider =
+    "\n------------------------------------------------------------\n\n";
+
 // skip the first 2 arguments
 process.argv.shift();
 process.argv.shift();
@@ -63,15 +66,19 @@ function searchMovie() {
     axios.get(url).then(function (response) {
         var movie = response.data;
 
-        console.log('Title: ' + movie.Title);
-        console.log('Year: ' + movie.Year);
-        console.log('IMDB rating: ' + movie.imdbRating);
-        console.log('Rotten Tomatoes rating: ' + movie.Ratings[2].Value);
-        console.log('Produced in: ' + movie.Country);
-        console.log('Language: ' + movie.Language);
-        console.log('Plot: ' + movie.Plot);
-        console.log('Actors: ' + movie.Actors);
-        console.log('---------------');
+        // create data in file
+        var showData = [
+            'Title: ' + movie.Title,
+            'Year: ' + movie.Year,
+            'IMDB rating: ' + movie.imdbRating,
+            'Rotten Tomatoes rating: ' + movie.Ratings[2].Value,
+            'Produced in: ' + movie.Country,
+            'Language: ' + movie.Language,
+            'Plot: ' + movie.Plot,
+            'Actors: ' + movie.Actors
+        ].join("\n\n");
+
+        logFile(showData);
     }).catch(function (error) {
         console.log(error);
     });
@@ -88,11 +95,16 @@ function exeSpotify() {
     }).then(function (response) {
         var foundItems = response.tracks.items;
         foundItems.forEach(function (item) {
-            console.log('Artist: ' + item.artists[0].name);
-            console.log('Song: ' + item.name);
-            console.log('Album: ' + item.album.name);
-            console.log('Spotify URL: ' + item.external_urls.spotify);
-            console.log('----------------------------');
+
+            // create data in file
+            var showData = [
+                'Artist: ' + item.artists[0].name,
+                'Song: ' + item.name,
+                'Album: ' + item.album.name,
+                'Spotify URL: ' + item.external_urls.spotify
+            ].join("\n\n");
+
+            logFile(showData);
         });
     }).catch(function (err) {
         console.log(err);
@@ -104,13 +116,26 @@ function exeConcert() {
 
     axios.get(url).then(function (response) {
         response.data.forEach(function (item) {
-            console.log('Name of the venue: ' + item.venue.name);
-            console.log('Venue location: ' + item.venue.city + ', ' + item.venue.region);
-            console.log('Date of the Event: ' + moment().format(item.datetime, 'MM/DD/YYYY'));
-            console.log('-------------------');
+
+            // create data in file
+            var showData = [
+                'Name of the venue: ' + item.venue.name,
+                'Venue location: ' + item.venue.city + ', ' + item.venue.region,
+                'Date of the Event: ' + moment().format(item.datetime, 'MM/DD/YYYY')
+            ].join("\n\n");
+
+            logFile(showData);
         });
     }).catch(function (error) {
         console.log(error);
+    });
+}
+
+// appends data to file and logs data
+function logFile(data) {
+    fs.appendFile("log.txt", data + divider, function (err) {
+        if (err) throw err;
+        console.log(data);
     });
 }
 
